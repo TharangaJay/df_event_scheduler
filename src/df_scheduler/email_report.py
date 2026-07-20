@@ -17,7 +17,7 @@ def render_schedule_email(
     body_rows = []
     for row in rows:
         temp = "—" if row["forecast_max_f"] is None else f'{row["forecast_max_f"]:.1f}°F'
-        status = row["exclusion_reason"] or ("Scheduled" if row["eligible"] else "Not eligible")
+        status = row["exclusion_reason"] or ("Eligible" if row["eligible"] else "Not eligible")
         body_rows.append(
             "<tr>"
             f'<td>{html.escape(row["event_date"].strftime("%b %d, %Y"))}</td>'
