@@ -1,0 +1,18 @@
+location:
+  name: "John Wayne-Orange County Airport (KSNA)"
+  latitude: 33.6798
+  longitude: -117.8674
+  timezone: "America/Los_Angeles"
+
+weather:
+  api_url: "https://api.open-meteo.com/v1/forecast"
+  forecast_days: 16
+
+thresholds_f:
+  low_min: 80.0
+  medium_min: 85.0
+  high_min_exclusive: 90.0
+
+email:
+  subject_prefix: "UCI DF Schedule"
+

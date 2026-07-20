@@ -1,0 +1,2 @@
+run_id,retrieved_at,event_date,weekday,forecast_max_f,weather_category,eligible,excluded,exclusion_reason,strategy,assignment_method,weather_source,location_name,latitude,longitude
+
