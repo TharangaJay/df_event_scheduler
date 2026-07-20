@@ -1,2 +1,7 @@
 run_id,retrieved_at,event_date,weekday,forecast_max_f,weather_category,eligible,excluded,exclusion_reason,strategy,assignment_method,weather_source,location_name,latitude,longitude
 
+3da49dbf-497e-4e5b-a51d-8e17084ae5d2,2026-07-20T12:33:02.525324-07:00,2026-07-27,Monday,82.80,Low,true,false,,Intervention,random,Open-Meteo,John Wayne-Orange County Airport (KSNA),33.6798,-117.8674
+3da49dbf-497e-4e5b-a51d-8e17084ae5d2,2026-07-20T12:33:02.525324-07:00,2026-07-28,Tuesday,83.90,Low,true,false,,Baseline,random,Open-Meteo,John Wayne-Orange County Airport (KSNA),33.6798,-117.8674
+3da49dbf-497e-4e5b-a51d-8e17084ae5d2,2026-07-20T12:33:02.525324-07:00,2026-07-29,Wednesday,83.90,Low,true,false,,Intervention,random,Open-Meteo,John Wayne-Orange County Airport (KSNA),33.6798,-117.8674
+3da49dbf-497e-4e5b-a51d-8e17084ae5d2,2026-07-20T12:33:02.525324-07:00,2026-07-30,Thursday,88.40,Medium,true,false,,Baseline,random,Open-Meteo,John Wayne-Orange County Airport (KSNA),33.6798,-117.8674
+3da49dbf-497e-4e5b-a51d-8e17084ae5d2,2026-07-20T12:33:02.525324-07:00,2026-07-31,Friday,87.00,Medium,true,false,,Intervention,random,Open-Meteo,John Wayne-Orange County Airport (KSNA),33.6798,-117.8674

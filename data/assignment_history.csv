@@ -1,2 +1,7 @@
 event_date,weekday,weather_category,strategy,assignment_method,paired_with_date,assigned_at,forecast_max_f
 
+2026-07-27,Monday,Low,Intervention,random,,2026-07-20T12:33:02.525324-07:00,82.80
+2026-07-28,Tuesday,Low,Baseline,random,,2026-07-20T12:33:02.525324-07:00,83.90
+2026-07-29,Wednesday,Low,Intervention,random,,2026-07-20T12:33:02.525324-07:00,83.90
+2026-07-30,Thursday,Medium,Baseline,random,,2026-07-20T12:33:02.525324-07:00,88.40
+2026-07-31,Friday,Medium,Intervention,random,,2026-07-20T12:33:02.525324-07:00,87.00
