@@ -5,3 +5,8 @@ event_date,weekday,weather_category,strategy,assignment_method,paired_with_date,
 2026-07-29,Wednesday,Low,Intervention,random,,2026-07-20T12:33:02.525324-07:00,83.90
 2026-07-30,Thursday,Medium,Baseline,random,,2026-07-20T12:33:02.525324-07:00,88.40
 2026-07-31,Friday,Medium,Intervention,random,,2026-07-20T12:33:02.525324-07:00,87.00
+2026-08-03,Monday,Medium,Baseline,random,,2026-07-29T11:06:44.046538-07:00,87.00
+2026-08-04,Tuesday,Low,Intervention,opposite_previous,2026-07-28,2026-07-29T11:06:44.046538-07:00,81.80
+2026-08-05,Wednesday,Medium,Intervention,random,,2026-07-29T11:06:44.046538-07:00,85.20
+2026-08-06,Thursday,Medium,Intervention,opposite_previous,2026-07-30,2026-07-29T11:06:44.046538-07:00,86.80
+2026-08-07,Friday,Low,Intervention,random,,2026-07-29T11:06:44.046538-07:00,84.40
