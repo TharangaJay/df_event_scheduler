@@ -40,3 +40,8 @@ a4601838-a8d9-451d-9851-995cc90db1b2,2026-07-20T14:56:32.383710-07:00,2026-07-31
 3d052734-65cc-476f-bbd2-bddad88fa387,2026-08-26T11:59:42.659825-07:00,2026-09-02,Wednesday,82.30,Low,true,false,,Baseline,opposite_previous,Open-Meteo,John Wayne-Orange County Airport (KSNA),33.6798,-117.8674
 3d052734-65cc-476f-bbd2-bddad88fa387,2026-08-26T11:59:42.659825-07:00,2026-09-03,Thursday,79.00,Ineligible,false,false,,,,Open-Meteo,John Wayne-Orange County Airport (KSNA),33.6798,-117.8674
 3d052734-65cc-476f-bbd2-bddad88fa387,2026-08-26T11:59:42.659825-07:00,2026-09-04,Friday,87.70,Medium,true,false,,Intervention,random,Open-Meteo,John Wayne-Orange County Airport (KSNA),33.6798,-117.8674
+10c7dac5-1ac7-482e-8169-74f13ac61e0e,2026-09-02T12:38:13.419724-07:00,2026-09-07,Monday,86.10,Medium,false,true,UCI Labor Day,,,Open-Meteo,John Wayne-Orange County Airport (KSNA),33.6798,-117.8674
+10c7dac5-1ac7-482e-8169-74f13ac61e0e,2026-09-02T12:38:13.419724-07:00,2026-09-08,Tuesday,84.60,Low,true,false,,Baseline,opposite_previous,Open-Meteo,John Wayne-Orange County Airport (KSNA),33.6798,-117.8674
+10c7dac5-1ac7-482e-8169-74f13ac61e0e,2026-09-02T12:38:13.419724-07:00,2026-09-09,Wednesday,83.50,Low,true,false,,Intervention,random,Open-Meteo,John Wayne-Orange County Airport (KSNA),33.6798,-117.8674
+10c7dac5-1ac7-482e-8169-74f13ac61e0e,2026-09-02T12:38:13.419724-07:00,2026-09-10,Thursday,83.90,Low,true,false,,Baseline,opposite_previous,Open-Meteo,John Wayne-Orange County Airport (KSNA),33.6798,-117.8674
+10c7dac5-1ac7-482e-8169-74f13ac61e0e,2026-09-02T12:38:13.419724-07:00,2026-09-11,Friday,77.10,Ineligible,false,false,,,,Open-Meteo,John Wayne-Orange County Airport (KSNA),33.6798,-117.8674
