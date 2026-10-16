@@ -1,64 +1,83 @@
 # UCI Demand Flexibility Event Scheduler
 
-This Python program runs each Wednesday, retrieves Open-Meteo daily maximum-temperature forecasts for the following Monday-Friday at the KSNA coordinates, excludes federal and UCI campus holidays, assigns Baseline or Intervention strategies, and sends the schedule through SendGrid.
+This Python program runs on GitHub each Wednesday at 8:00 a.m. Pacific. It retrieves the Open-Meteo daily maximum-temperature forecast for the following Monday-Friday at the KSNA coordinates, excludes federal and configured UCI campus holidays, assigns Baseline or Intervention strategies, and adds the results to a cumulative CSV in the repository.
 
-## Where it runs
+No email service, API key, or GitHub secret is required.
 
-The recurring job runs on a GitHub-hosted runner. Your PC can be shut down. GitHub reads the workflow in `.github/workflows/weekly_schedule.yml`, creates a temporary Linux computer, runs the tests and scheduler, sends the email, and commits the audit CSV files back to the private repository.
+## History CSV files
 
-The scheduled time is 10:00 a.m. each Wednesday in `America/Los_Angeles`. GitHub schedules are not guaranteed to start at the exact minute and can occasionally be delayed.
+Each live run updates two existing history files:
+
+```text
+data/assignment_history.csv
+data/forecast_history.csv
+```
+
+`assignment_history.csv` contains one row for every eligible day that received a strategy. It remains the source used to balance future Baseline and Intervention assignments.
+
+`forecast_history.csv` contains all five weekdays from every scheduling run, including ineligible days and holidays/closures. Its columns include the forecast temperature, category, eligibility, exclusion information, strategy, forecast source, location, and retrieval time.
+
+Example forecast-history rows:
+
+```csv
+run_id,retrieved_at,event_date,weekday,forecast_max_f,weather_category,eligible,excluded,exclusion_reason,strategy,assignment_method,weather_source,location_name,latitude,longitude
+...,2026-10-14T08:00:00-07:00,2026-10-19,Monday,82.30,Low,true,false,,Intervention,random,Open-Meteo,...
+...,2026-10-14T08:00:00-07:00,2026-10-20,Tuesday,71.10,Ineligible,false,false,,,,Open-Meteo,...
+```
+
+The `eligible` column is `true` only when the day meets the temperature threshold and is not a holiday or closure. Strategy is blank for ineligible or excluded days. A repeated live run adds another five-row forecast snapshot but reuses any strategy already recorded in `assignment_history.csv`.
+
+## Important upgrade instruction
+
+Keep both existing files in your GitHub repository when replacing the project code:
+
+- `data/assignment_history.csv`
+- `data/forecast_history.csv`
+
+The replacement ZIP intentionally excludes them, so uploading its contents over the repository will leave your current history untouched.
+
+## Where and when it runs
+
+The recurring job runs on a GitHub-hosted runner, so your PC can be off. It runs every Wednesday at 8:00 a.m. in `America/Los_Angeles`, automatically accounting for PST/PDT. GitHub may start a scheduled workflow a few minutes late.
+
+After a successful live run, GitHub commits both updated CSV files back to the repository.
 
 ## Strategy logic
 
-History is tracked independently for each weekday and weather category. The first occurrence in a pair is random. The second is the opposite strategy. The next occurrence begins a new randomly selected pair. A rerun for an already-assigned event date reuses its existing assignment.
+Assignment history is tracked independently for every weekday and weather category. The first occurrence in a pair is randomly assigned. The second occurrence receives the opposite strategy. The next occurrence begins a new randomly selected pair.
 
-Manual **dry-run** and **test-email** modes do not change either history CSV.
+For example, `Wednesday-Medium` and `Wednesday-High` maintain separate sequences.
 
-## 1. Create the private repository
+## Replace the current repository files
 
-Create an empty private GitHub repository, then copy this entire folder into it and push it to the default branch (normally `main`). The scheduled workflow only runs from the default branch.
+1. Download and extract the ZIP.
+2. Keep a backup of the current repository, especially both CSV files in `data/`.
+3. Upload the contents of the extracted `df-event-scheduler` folder to the repository root, preserving the `.github` folder.
+4. Do not delete or overwrite your existing `data/assignment_history.csv` or `data/forecast_history.csv`.
+5. The SendGrid GitHub secrets are no longer used. You may delete them from **Settings → Secrets and variables → Actions**.
+6. Delete the old `src/df_scheduler/email_report.py` and `tests/test_email_report.py` from GitHub because they are no longer needed.
 
-## 2. Configure SendGrid
+## Test after uploading
 
-1. Create a SendGrid account and enable two-factor authentication.
-2. Verify a Single Sender address or authenticate a sending domain.
-3. Create a restricted API key with only **Mail Send** access.
-4. In GitHub, open **Settings → Secrets and variables → Actions**.
-5. Add these repository secrets:
+Open **Actions → Weekly DF schedule → Run workflow**.
 
-| Secret | Value |
-|---|---|
-| `SENDGRID_API_KEY` | Restricted SendGrid API key |
-| `SENDGRID_FROM_EMAIL` | Exact verified sender address |
-| `DF_NOTIFICATION_EMAILS` | Recipient address, or comma-separated addresses |
+- Select `dry-run` to retrieve and display the proposed schedule without changing either history file.
+- Select `live-schedule` to record the schedule and commit both CSV files.
 
-Never put the API key in a file, commit, issue, screenshot, or workflow log.
+After `live-schedule` succeeds, open `data/forecast_history.csv`. You should see five new rows for the following Monday-Friday, including `eligible=false` rows for days that are not scheduled. Eligible strategies will also appear in `data/assignment_history.csv`.
 
-## 3. Test the email
+## Maintain UCI closures
 
-In GitHub, open **Actions → Weekly DF schedule → Run workflow**. Select **test-email**. This sends a connectivity test without retrieving weather or changing assignment history.
+`config/uci_holidays.yaml` contains UCI-specific closures. Federal holidays are generated by the Python `holidays` package. Update the UCI file before each new year using the official UCI Staff Calendar.
 
-Then run **dry-run**. It retrieves the live forecast and prints the proposed schedule in the GitHub Actions log without emailing it or changing history.
+The program stops if the target year has no UCI calendar configuration. This prevents it from silently scheduling a campus closure as a test day.
 
-Use **live-schedule** only when ready to send the real schedule and record assignments.
+## Local use (optional)
 
-## 4. Maintain UCI closures
-
-`config/uci_holidays.yaml` contains UCI-specific closure dates. Federal holidays are generated by the Python `holidays` package. Before each new year, update the UCI file from https://hr.uci.edu/staff-calendar/.
-
-The scheduler fails safely if the target workweek belongs to a year without a configured UCI calendar. This avoids scheduling a study day when campus closure information is unknown.
-
-## Local setup (optional)
-
-The program can also run on your PC for development:
-
-```bash
-python -m venv .venv
-```
-
-Activate it on Windows PowerShell:
+On Windows PowerShell:
 
 ```powershell
+python -m venv .venv
 .venv\Scripts\Activate.ps1
 pip install -r requirements.txt pytest
 $env:PYTHONPATH = "src"
@@ -66,25 +85,10 @@ pytest -q
 python -m df_scheduler.main --dry-run
 ```
 
-To test SendGrid locally, set the three environment variables only in the current PowerShell session:
+Run without `--dry-run` only if you want to update the CSV files on your PC.
 
-```powershell
-$env:SENDGRID_API_KEY = "your-key"
-$env:SENDGRID_FROM_EMAIL = "verified-sender@example.com"
-$env:DF_NOTIFICATION_EMAILS = "recipient@example.com"
-python -m df_scheduler.main --test-email
-```
+## Operational notes
 
-## Files created by live runs
-
-- `data/assignment_history.csv`: one permanent strategy assignment per eligible event date.
-- `data/forecast_history.csv`: all five forecast dates for every live scheduling run, including ineligible and excluded dates.
-
-Git version history provides an additional audit trail.
-
-## Important operational notes
-
-- Open-Meteo is queried at KSNA coordinates; it is a gridded model forecast, not a KSNA station observation.
-- If weather eligibility changes after Wednesday, this program does not automatically revise the assignment. Any day-of-event verification should be handled as a separate future feature.
-- If the forecast API, calendar validation, test suite, or SendGrid request fails, the workflow fails and does not commit new history.
-- SendGrid acceptance confirms that SendGrid accepted the message; inbox delivery can still be affected by spam filtering or organizational email policies.
+- Open-Meteo is queried at the KSNA coordinates. This is a gridded forecast for that location, not a measured KSNA observation.
+- The Wednesday forecast determines the schedule. The program does not automatically revise it later if the forecast changes.
+- If forecast retrieval, calendar validation, testing, or the GitHub commit fails, the workflow reports a failure.

@@ -2,7 +2,7 @@ name: Weekly DF schedule
 
 on:
   schedule:
-    - cron: "0 10 * * 3"
+    - cron: "0 8 * * 3"
       timezone: "America/Los_Angeles"
   workflow_dispatch:
     inputs:
@@ -13,7 +13,6 @@ on:
         type: choice
         options:
           - dry-run
-          - test-email
           - live-schedule
 
 permissions:
@@ -35,24 +34,18 @@ jobs:
       - run: pip install -r requirements.txt pytest
       - run: pytest -q
       - name: Run scheduler
-        env:
-          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
-          SENDGRID_FROM_EMAIL: ${{ secrets.SENDGRID_FROM_EMAIL }}
-          DF_NOTIFICATION_EMAILS: ${{ secrets.DF_NOTIFICATION_EMAILS }}
         shell: bash
         run: |
           MODE="${{ github.event.inputs.mode }}"
           if [ "${{ github.event_name }}" = "schedule" ] || [ "$MODE" = "live-schedule" ]; then
             PYTHONPATH=src python -m df_scheduler.main
-          elif [ "$MODE" = "test-email" ]; then
-            PYTHONPATH=src python -m df_scheduler.main --test-email
           else
             PYTHONPATH=src python -m df_scheduler.main --dry-run
           fi
       - name: Commit audit history
         if: github.event_name == 'schedule' || github.event.inputs.mode == 'live-schedule'
         run: |
-          if git diff --quiet -- data; then
+          if [ -z "$(git status --porcelain -- data)" ]; then
             echo "No history changes to commit."
             exit 0
           fi

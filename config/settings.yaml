@@ -13,6 +13,3 @@ thresholds_f:
   medium_min: 85.0
   high_min_exclusive: 90.0
 
-email:
-  subject_prefix: "UCI DF Schedule"
-

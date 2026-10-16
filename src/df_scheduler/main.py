@@ -5,13 +5,11 @@ import csv
 import sys
 import uuid
 from datetime import date, datetime
-from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from .assignments import append_assignment, choose_assignment, read_history
 from .config import ROOT, load_settings
 from .dates import following_workweek
-from .email_report import render_schedule_email, render_test_email, send_email
 from .holiday_calendar import load_exclusions
 from .weather import classify_temperature, fetch_daily_max
 
@@ -27,16 +25,20 @@ def append_forecast_rows(rows: list[dict], retrieved_at: datetime, settings: dic
         "weather_category", "eligible", "excluded", "exclusion_reason", "strategy",
         "assignment_method", "weather_source", "location_name", "latitude", "longitude",
     ]
+    FORECAST_HISTORY.parent.mkdir(parents=True, exist_ok=True)
+    write_header = not FORECAST_HISTORY.exists() or FORECAST_HISTORY.stat().st_size == 0
     run_id = str(uuid.uuid4())
     with FORECAST_HISTORY.open("a", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        if write_header:
+            writer.writeheader()
         for row in rows:
             writer.writerow({
                 "run_id": run_id,
                 "retrieved_at": retrieved_at.isoformat(),
                 "event_date": row["event_date"].isoformat(),
                 "weekday": row["weekday"],
-                "forecast_max_f": "" if row["forecast_max_f"] is None else f'{row["forecast_max_f"]:.2f}',
+                "forecast_max_f": f'{row["forecast_max_f"]:.2f}',
                 "weather_category": row["weather_category"],
                 "eligible": str(row["eligible"]).lower(),
                 "excluded": str(bool(row["exclusion_reason"])).lower(),
@@ -98,11 +100,9 @@ def print_schedule(rows: list[dict]) -> None:
 
 
 def parse_args(argv=None):
-    parser = argparse.ArgumentParser(description="Create and email the weekly UCI DF event schedule")
+    parser = argparse.ArgumentParser(description="Create the weekly UCI DF event schedule CSV")
     parser.add_argument("--today", type=date.fromisoformat, help="Override today's date (YYYY-MM-DD)")
-    parser.add_argument("--dry-run", action="store_true", help="Do not save history or send email")
-    parser.add_argument("--no-email", action="store_true", help="Save history but do not send email")
-    parser.add_argument("--test-email", action="store_true", help="Send only a connectivity test email")
+    parser.add_argument("--dry-run", action="store_true", help="Print the schedule without saving history")
     return parser.parse_args(argv)
 
 
@@ -111,18 +111,11 @@ def main(argv=None) -> int:
     settings = load_settings()
     tz = ZoneInfo(settings["location"]["timezone"])
     now = datetime.now(tz)
-    if args.test_email:
-        send_email("UCI DF Scheduler – Test Email", render_test_email(now))
-        print("Test email accepted by SendGrid.")
-        return 0
     today = args.today or now.date()
-    rows, retrieved_at, settings = build_schedule(today, persist=not args.dry_run)
+    rows, _, _ = build_schedule(today, persist=not args.dry_run)
     print_schedule(rows)
-    if not args.dry_run and not args.no_email:
-        period = f'{rows[0]["event_date"]:%b %d}–{rows[-1]["event_date"]:%b %d, %Y}'
-        subject = f'{settings["email"]["subject_prefix"]}: {period}'
-        send_email(subject, render_schedule_email(rows, retrieved_at, settings["location"]["name"]))
-        print("Schedule email accepted by SendGrid.")
+    if not args.dry_run:
+        print(f"Updated {ASSIGNMENT_HISTORY.relative_to(ROOT)} and {FORECAST_HISTORY.relative_to(ROOT)}")
     return 0
 
 

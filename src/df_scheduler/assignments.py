@@ -64,8 +64,12 @@ def append_assignment(
         "event_date", "weekday", "weather_category", "strategy", "assignment_method",
         "paired_with_date", "assigned_at", "forecast_max_f",
     ]
+    path.parent.mkdir(parents=True, exist_ok=True)
+    write_header = not path.exists() or path.stat().st_size == 0
     with path.open("a", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        if write_header:
+            writer.writeheader()
         writer.writerow({
             "event_date": event_date.isoformat(),
             "weekday": event_date.strftime("%A"),
